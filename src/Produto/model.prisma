@@ -1,0 +1,12 @@
+model Produto{
+    id        Int    @id @default(autoincrement())
+    barCode   String
+
+    usuario   User   @relation("ProdutosToUser", fields: [usuarioId], references: [id])
+    usuarioId Int
+
+    lote          Lote @relation("ProdutosToLote", fields: [loteId], references: [id])
+    loteId        Int
+
+    createdAt DateTime @default(now())
+}

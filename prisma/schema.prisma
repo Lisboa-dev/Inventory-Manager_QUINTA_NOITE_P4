@@ -26,8 +26,68 @@ generator client {
 // model.prisma
 //
 
+model Genero {
+  id   Int    @id @default(autoincrement())
+  nome String
+
+  usuario   User @relation("GenerosToUser", fields: [usuarioId], references: [id])
+  usuarioId Int
+
+  nodeId   Int?
+  node     Genero?  @relation("GeneroToGenero", fields: [nodeId], references: [id])
+  children Genero[] @relation("GeneroToGenero")
+
+  lotes Lote[] @relation("LotesToGenre")
+
+  createdAt DateTime @default(now())
+}
+
+//
+// model.prisma
+//
+
+model Lote {
+  id        Int  @id @default(autoincrement())
+  usuario   User @relation("LotesToUser", fields: [usuarioId], references: [id])
+  usuarioId Int
+
+  genre   Genero @relation("LotesToGenre", fields: [genreId], references: [id])
+  genreId Int
+
+  produtos Produto[] @relation("ProdutosToLote")
+
+  createdAt DateTime @default(now())
+}
+
+//
+// model.prisma
+//
+
+model Produto {
+  id      Int    @id @default(autoincrement())
+  barCode String
+
+  usuario   User @relation("ProdutosToUser", fields: [usuarioId], references: [id])
+  usuarioId Int
+
+  lote   Lote @relation("ProdutosToLote", fields: [loteId], references: [id])
+  loteId Int
+
+  createdAt DateTime @default(now())
+}
+
+//
+// model.prisma
+//
+
 model User {
   id    Int    @id @default(autoincrement())
   name  String
   email String @unique
+  senha String
+
+  generos   Genero[]  @relation("GenerosToUser")
+  produtos  Produto[] @relation("ProdutosToUser")
+  lotes     Lote[]    @relation("LotesToUser")
+  createdAt DateTime  @default(now())
 }

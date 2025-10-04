@@ -1,0 +1,15 @@
+model Genero{
+    id          Int     @id @default(autoincrement())
+    nome        String
+
+    usuario     User @relation("GenerosToUser", fields: [usuarioId], references: [id])
+    usuarioId   Int
+    
+    nodeId      Int?     
+    node        Genero?  @relation("GeneroToGenero", fields: [nodeId], references: [id])
+    children    Genero[] @relation("GeneroToGenero")
+
+    lotes Lote[] @relation("LotesToGenre")
+
+    createdAt DateTime  @default(now())
+}
