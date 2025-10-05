@@ -1,6 +1,6 @@
 import { Response, NextFunction } from 'express';
-import { verifyToken } from './jwt';
-import { AuthRequest, UserPayload } from './types';
+import { verifyToken } from './valideteToken';
+import { AuthRequest} from './typeJWT';
 
 /**
  * Middleware para autenticar requisições usando JWT.

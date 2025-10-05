@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { UserPayload } from './types';
+import { UserPayload } from '../../../middlewares/JWT/typeJWT';
 
 // Carrega a chave secreta do ambiente. Use uma chave forte e segura em produção.
 // Para desenvolvimento, um valor padrão é fornecido, mas NUNCA use em produção.
@@ -16,17 +16,3 @@ export function generateToken(user: UserPayload): string {
   return token;
 }
 
-/**
- * Verifica e decodifica um token JWT.
- * @param token O token JWT a ser verificado.
- * @returns O payload do usuário se o token for válido, ou null se for inválido/expirado.
- */
-export function verifyToken(token: string): UserPayload | null {
-  try {
-    const decoded = jwt.verify(token, SECRET_KEY) as UserPayload;
-    return decoded;
-  } catch (error) {
-    console.error('Erro ao verificar token:', error);
-    return null;
-  }
-}

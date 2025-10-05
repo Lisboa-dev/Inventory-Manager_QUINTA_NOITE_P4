@@ -1,8 +1,10 @@
 
-// src/user/user.service.ts
 import { PrismaClient } from '@prisma/client';
-// Adjust the import path as needed; example assumes validate.ts is in src/utils/
-import { CreateUserBody } from '/utils/validate'; // Importamos o tipo
+import { CreateUserBody } from './utils/validateBody'; // Importamos o tipo
+import bcrypt from 'bcrypt';
+import {generateToken} from './utils/JWT/generateJWT';
+
+
 
 const prisma = new PrismaClient();
 
@@ -20,7 +22,11 @@ export const userService = {
 
     // Cria o usuário no banco de dados
     const newUser = await prisma.user.create({
-      data: user,
+      data: {
+        name: user.name,
+        email: user.email,
+        senha: user.senha, // Certifique-se de que 'senha' está presente em CreateUserBody
+      },
     });
 
     return newUser;
@@ -29,5 +35,29 @@ export const userService = {
   async findById(id: number) {
     const user = await prisma.user.findUnique({ where: { id } });
     return user;
+  },
+
+ async delete(id: number) {
+    await prisma.user.delete({ where: { id } });
+    return { message: 'Usuário deletado com sucesso.' };
+  },
+
+  async login(email: string, senha: string) {
+    try{
+      const user = await prisma.user.findUnique({ where: { email } });
+      const senhaValida = user && await bcrypt.compare(senha, user.senha);
+      if (user && senhaValida) {
+        const token = generateToken({ id: user.id.toString(), email: user.email });
+        const { senha, ...userWithoutSenha } = user;
+        return userWithoutSenha;
+      }else{
+        return null;
+      }
+    }
+    catch (error) {
+      throw new Error('Erro ao buscar usuário.');
+    }
+
+
   }
 };

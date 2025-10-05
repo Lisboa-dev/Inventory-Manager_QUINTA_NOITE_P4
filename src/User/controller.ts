@@ -1,9 +1,10 @@
 // src/user/user.controller.ts
 import { Request, Response } from 'express';
-import { userService } from './user.service';
-import { CreateUserBody } from './user.schema'; // Importa o tipo para tipar a requisição
+import { userService } from './service';
+import { CreateUserBody } from './utils/validateBody'; // Importa o tipo para tipar a requisição
 
 export const userController = {
+
   async create(req: Request<{}, {}, CreateUserBody>, res: Response) {
     try {
       // O corpo (req.body) já foi validado pelo middleware na rota
@@ -15,6 +16,14 @@ export const userController = {
       // Se o serviço lançar um erro (ex: e-mail duplicado), o controller o captura
       return res.status(400).json({ message: error.message });
     }
+  },
+
+  async login(req: Request, res: Response) {
+   
+  },
+
+  async delete(req: Request, res: Response) {
+     res.status(501).json({ message: "delete não implementado." });
   },
 
   async getById(req: Request, res: Response) {
