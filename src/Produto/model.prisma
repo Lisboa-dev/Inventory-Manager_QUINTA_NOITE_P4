@@ -1,12 +1,10 @@
-model Produto{
-    id        Int    @id @default(autoincrement())
-    barCode   String
-
-    usuario   User   @relation("ProdutosToUser", fields: [usuarioId], references: [id])
-    usuarioId Int
-
-    lote          Lote @relation("ProdutosToLote", fields: [loteId], references: [id])
-    loteId        Int
-
-    createdAt DateTime @default(now())
+model Produto {
+  id                Int      @id @default(autoincrement())
+  nome              String
+  descricao         String? 
+  preco             Decimal   @db.Decimal(10, 2)
+  quantidadeEstoque Int       @default(0)
+  lotes             Lote[]
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 }
