@@ -1,12 +1,8 @@
 import { PrismaClient } from "@prisma/client";
+import loteCreateDTO from "./utils/createLoteDTO";
 const prisma = new PrismaClient();
 
-type LoteCreateDTO = {
-  codigo: string;
-  quantidade: number;
-  dataValidade: string | Date;
-  produtoId: number;
-};
+
 
 class LoteService {
   async listarTodos() {

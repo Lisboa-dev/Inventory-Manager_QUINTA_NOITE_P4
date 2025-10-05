@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import LoteService from "./service";
 
-class LoteController {
+class loteController {
   async listar(req: Request, res: Response) {
     try {
       const lotes = await LoteService.listarTodos();
@@ -52,4 +52,4 @@ class LoteController {
   }
 }
 
-export default new LoteController();
+export default new loteController();

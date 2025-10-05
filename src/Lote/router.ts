@@ -1,12 +1,12 @@
 import { Router } from 'express';
-import LoteController from "./controller";
+import loteController from "./controller";
 
-const router = Router();
+const loteRouter = Router();
 
-router.get("/", LoteController.listar);
-router.get("/:id", LoteController.buscar);
-router.post("/", LoteController.criar);
-router.put("/:id", LoteController.atualizar);
-router.delete("/:id", LoteController.deletar);
+loteRouter.get("/", loteController.listar);
+loteRouter.get("/:id", loteController.buscar);
+loteRouter.post("/", loteController.criar);
+loteRouter.put("/:id", loteController.atualizar);
+loteRouter.delete("/:id", loteController.deletar);
 
-export default router;
+export default loteRouter;
