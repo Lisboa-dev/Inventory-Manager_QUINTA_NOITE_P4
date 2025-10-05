@@ -47,30 +47,43 @@ model Genero {
 //
 
 model Lote {
-  id           Int       @id @default(autoincrement())
+  // Relation with User
+  usuario   User      @relation("LotesToUser", fields: [usuarioId], references: [id])
+  usuarioId Int
+  // Relation with Genero
+  genre     Genero    @relation("LotesToGenre", fields: [genreId], references: [id])
+  genreId   Int
+  // Relation with Produto
+  produtos  Produto[] @relation("ProdutosToLote")
+
+  id           Int      @id @default(autoincrement())
   codigo       String
   quantidade   Int
   dataValidade DateTime
-  produtoId    Int
-  produto      Produto   @relation(fields: [produtoId], references: [id])
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
-
 
 //
 // model.prisma
 //
 
 model Produto {
+  // Relation with User
+  usuario   User @relation("ProdutosToUser", fields: [usuarioId], references: [id])
+  usuarioId Int
+  // Relation with Lote
+  lote      Lote @relation("ProdutosToLote", fields: [loteId], references: [id])
+  loteId    Int
+
   id                Int      @id @default(autoincrement())
+  barCode           String
   nome              String
-  descricao         String? 
-  preco             Decimal   @db.Decimal(10, 2)
-  quantidadeEstoque Int       @default(0)
-  lotes             Lote[]
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
+  descricao         String?
+  preco             Decimal  @db.Decimal(10, 2)
+  quantidadeEstoque Int      @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }
 
 //

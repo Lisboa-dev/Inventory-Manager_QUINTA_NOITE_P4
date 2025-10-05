@@ -1,8 +1,12 @@
 import { Router } from 'express';
+import ProdutoController from "./controller";
 
-// Import validate and createUserSchema from their respective modules
+const router = Router();
 
+router.get("/", ProdutoController.listar);
+router.get("/:id", ProdutoController.buscar);
+router.post("/", ProdutoController.criar);
+router.put("/:id", ProdutoController.atualizar);
+router.delete("/:id", ProdutoController.deletar);
 
-const produtoRouter = Router();
-
-export default produtoRouter;
+export default router;

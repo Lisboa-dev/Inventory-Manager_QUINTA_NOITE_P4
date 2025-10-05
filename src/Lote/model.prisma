@@ -1,10 +1,19 @@
 model Lote {
+
+ // Relation with User
+  usuario      User @relation("LotesToUser", fields: [usuarioId], references: [id])
+  usuarioId    Int
+// Relation with Genero
+  genre        Genero @relation("LotesToGenre", fields: [genreId], references: [id])
+  genreId      Int
+// Relation with Produto
+  produtos     Produto[] @relation("ProdutosToLote")
+
+ 
   id           Int       @id @default(autoincrement())
   codigo       String
   quantidade   Int
   dataValidade DateTime
-  produtoId    Int
-  produto      Produto   @relation(fields: [produtoId], references: [id])
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 }

@@ -1,8 +1,12 @@
 import { Router } from 'express';
+import LoteController from "./lote.controller";
 
-// Import validate and createUserSchema from their respective modules
+const router = Router();
 
+router.get("/", LoteController.listar);
+router.get("/:id", LoteController.buscar);
+router.post("/", LoteController.criar);
+router.put("/:id", LoteController.atualizar);
+router.delete("/:id", LoteController.deletar);
 
-const loteRouter = Router();
-
-export default loteRouter;
+export default router;
