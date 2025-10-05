@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import LoteController from "./lote.controller";
+import LoteController from "./controller";
 
 const router = Router();
 
