@@ -1,7 +1,7 @@
 model Lote {
 
  // Relation with User
-  usuario      User @relation("LotesToUser", fields: [usuarioId], references: [id])
+  usuario      User @relation("LotesToUser", fields: [usuarioId], references: [id], onDelete: Cascade)
   usuarioId    Int
 // Relation with Genero
   genre        Genero @relation("LotesToGenre", fields: [genreId], references: [id])

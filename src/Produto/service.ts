@@ -1,13 +1,7 @@
-
+import type ProdutoCreateDTO from './utils/produtoCreateDTO';
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
-type ProdutoCreateDTO = {
-  nome: string;
-  descricao?: string;
-  preco: number;
-  quantidadeEstoque?: number;
-};
 
 class ProdutoService {
   async listarTodos() {

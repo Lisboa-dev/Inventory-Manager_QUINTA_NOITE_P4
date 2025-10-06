@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import loteCreateDTO from "./utils/createLoteDTO";
+import LoteCreateDTO from "./utils/createLoteDTO";
 const prisma = new PrismaClient();
 
 
