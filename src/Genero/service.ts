@@ -1,19 +1,24 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 import { JsonObject } from "@prisma/client/runtime/library";
-import { NotFoundError, ServiceError } from "./utils/errorClass"
+import { NotFoundError, ServiceError } from "../utils/errorClass"
 
 const prisma = new PrismaClient();
 class generoService {
 
-  async list(uuId: string) {
-    const userLogadoId = await prisma.user.findUnique({ where: { uuid: uuId } });
 
-    if (!userLogadoId) {
+
+
+
+
+  async list(userId: number) {
+    
+
+    if (!userId) {
         throw new Error("Usuário não encontrado");
     }
     
     const data = await prisma.genero.findMany({
-            where: { usuarioId: userLogadoId.id },
+            where: { usuarioId: userId },
             orderBy: { nome: 'asc' }
         });
 
@@ -27,18 +32,17 @@ class generoService {
 
 
 
-  async getById(uuId: string, genreId: number) {
+  async getById(userId: number, genreId: number) {
 
-    const userLogadoId =  await prisma.user.findUnique({ where: { uuid: uuId } });
     
-   if(!userLogadoId){
+   if(!userId){
     throw new Error("Usuário não encontrado");
    }
 
    const data= await prisma.genero.findFirst({
             where: {
                 id: genreId,
-                usuarioId: userLogadoId.id
+                usuarioId: userId
             },
             include: {
                 node: true,     // Inclui o pai direto
@@ -55,16 +59,18 @@ class generoService {
 
 
 
-  async create(uuId: string, genre: string, father?: number) {
-    const userLogadoId = await prisma.user.findUnique({ where: { uuid: uuId } });
-    if (!userLogadoId) {
+
+
+  async create(userId: number, genre: string, father?: number) {
+   
+    if (!userId) {
         throw new Error("Usuário não encontrado");
     }
     try {
                 const data: Prisma.GeneroCreateInput = {
                     nome: genre,
                     usuario: {
-                        connect: { id: userLogadoId.id}
+                        connect: { id: userId}
                     }
                 };
     
@@ -72,7 +78,7 @@ class generoService {
                 if (father) {
                     // Opcional: Verificar se o nó pai existe e pertence ao mesmo usuário
                     const parentNode = await prisma.genero.findFirst({
-                        where: { id: father, usuarioId: userLogadoId.id }
+                        where: { id: father, usuarioId: userId }
                     });
                     if (!parentNode) {
                         return ({ error: "O setor pai não foi encontrado ou não pertence a você." });
@@ -96,11 +102,11 @@ class generoService {
 
 
 
-  async update(uuId: string, data: JsonObject) {
-    const userLogadoId = await prisma.user.findUnique({ where: { uuid: uuId } });
+  async update( userId: number, data: JsonObject) {
+  
     const { id, nome, father } = data as { id: number; nome?: string; father?: number | null };
 
-    if (!userLogadoId) {
+    if (!userId) {
         throw new Error("Usuário não encontrado");
     }
 
@@ -123,7 +129,7 @@ class generoService {
                 const generoAtualizado = await prisma.genero.update({
                     where: {
                         id: id,
-                        usuarioId: userLogadoId.id
+                        usuarioId: userId
                     },
                     data: data
                 });
@@ -142,29 +148,33 @@ class generoService {
 
 
 
+
+
+
+
 // src/services/GeneroService.ts
 
         /**
          * Deleta um gênero, movendo seus lotes e subsetores para o gênero pai.
-         * @param usuarioUuid O UUID do usuário que está realizando a operação.
+         * @param userId O UUID do usuário que está realizando a operação.
          * @param generoId O ID do gênero a ser deletado.
          * @throws {NotFoundError} Se o usuário ou o gênero não forem encontrados.
          * @throws {ServiceError} Se ocorrer um erro durante a transação.
          */
 
-  async delete(usuarioUuid: string, generoId: number) {
+  async delete(userId: number, generoId: number) {
  
   
             // 1. Encontrar o usuário pelo UUID
-            const userLogado = await prisma.user.findUnique({ where: { uuid: usuarioUuid } });
-            if (!userLogado) {
+           
+            if (!userId) {
             throw new NotFoundError("Usuário não encontrado");
             }
-            const usuarioId = userLogado.id;
+        
 
             // 2. Encontrar o gênero a ser deletado e suas dependências
             const genreToDelete = await prisma.genero.findUnique({
-            where: { id: generoId, usuarioId },
+            where: { id: generoId, usuarioId: userId },
             select: {
                 father: true, // ID do pai
                 children: { select: { id: true } },
@@ -204,7 +214,7 @@ class generoService {
 
                 // 3.3. Finalmente, deletar o gênero
                 await tx.genero.delete({
-                where: { id: generoId, usuarioId },
+                where: { id: generoId, usuarioId: userId},
                 });
             });
             } catch (error) {
