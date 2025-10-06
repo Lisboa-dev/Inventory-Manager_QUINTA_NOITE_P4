@@ -1,7 +1,7 @@
 type LoteCreateDTO = {
   codigo: string;
   quantidade: number;
-  dataValidade: string | Date;
+  dataValidade: string; 
   produtoId: number;
 };
 

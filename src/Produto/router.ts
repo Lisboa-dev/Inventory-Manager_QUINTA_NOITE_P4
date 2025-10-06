@@ -1,12 +1,17 @@
 import { Router } from 'express';
 import ProdutoController from "./controller";
+import {authenticateToken} from '../middlewares/JWT/authMiddleware.js';
+import {userResolverMiddleware} from '../middlewares/userResolverMiddleware.js';
 
-const router = Router();
 
-router.get("/", ProdutoController.listar);
-router.get("/:id", ProdutoController.buscar);
-router.post("/", ProdutoController.criar);
-router.put("/:id", ProdutoController.atualizar);
-router.delete("/:id", ProdutoController.deletar);
+const produtoRouter = Router();
 
-export default router;
+produtoRouter.use(authenticateToken, userResolverMiddleware);   
+
+produtoRouter.get("/", ProdutoController.getAll);
+produtoRouter.get("/:id", ProdutoController.getById);
+produtoRouter.post("/", ProdutoController.create);
+produtoRouter.put("/:id", ProdutoController.update);
+produtoRouter.delete("/:id", ProdutoController.delete);
+
+export default produtoRouter;

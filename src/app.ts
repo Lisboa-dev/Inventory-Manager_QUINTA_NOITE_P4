@@ -7,6 +7,7 @@ import loteRouter from "./Lote/router";
 import produtoRouter from "./Produto/router";
 import generoRouter from "./Genero/router";
 import { authenticateToken } from "./middlewares/JWT/authMiddleware.js";
+import { userResolverMiddleware } from "./middlewares/userResolverMiddleware.js";
 
 import { setupSwagger } from "./swagger";
 
@@ -21,9 +22,9 @@ setupSwagger(app);
 
 // Rotas
 app.use('/users', userRouter);
-app.use('/lotes', authenticateToken, loteRouter);
-app.use('/produtos', authenticateToken, produtoRouter);
-app.use('/generos', authenticateToken, generoRouter);
+app.use('/lotes', authenticateToken, userResolverMiddleware, loteRouter);
+app.use('/produtos', authenticateToken, userResolverMiddleware, produtoRouter);
+app.use('/generos', authenticateToken, userResolverMiddleware, generoRouter);
 
 app.listen(port, () => {
     console.log(`A API subiu na porta ${port}, endereço: http://localhost:${port}`);
