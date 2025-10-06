@@ -2,14 +2,14 @@ model Genero{
     id          Int     @id @default(autoincrement())
     nome        String
 
-    usuario     User @relation("GenerosToUser", fields: [usuarioId], references: [id])
+    usuario     User @relation("GenerosToUser", fields: [usuarioId], references: [id], onDelete: Cascade)
     usuarioId   Int
     
-    nodeId      Int?     
-    node        Genero?  @relation("GeneroToGenero", fields: [nodeId], references: [id])
+    father      Int?     
+    node        Genero?  @relation("GeneroToGenero", fields: [father], references: [id])
     children    Genero[] @relation("GeneroToGenero")
 
-    lotes Lote[] @relation("LotesToGenre")
+    lotes Lote[] @relation("LotesToGenre") 
 
     createdAt DateTime  @default(now())
 }
