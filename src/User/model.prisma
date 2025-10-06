@@ -3,8 +3,9 @@ model User {
   name     String
   email    String  @unique  
   senha    String 
+  uuid     String  @default(uuid()) @unique
 
-  generos Genero[] @relation("GenerosToUser")
+  generos Genero[] @relation("GenerosToUser") 
   produtos Produto[] @relation("ProdutosToUser")
   lotes Lote[] @relation("LotesToUser")
   createdAt DateTime @default(now())

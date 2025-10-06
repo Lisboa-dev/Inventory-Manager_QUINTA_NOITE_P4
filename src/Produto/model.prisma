@@ -2,7 +2,7 @@ model Produto {
 
   
  // Relation with User
-  usuario            User @relation("ProdutosToUser", fields: [usuarioId], references: [id])
+  usuario            User @relation("ProdutosToUser", fields: [usuarioId], references: [id], onDelete: Cascade)
   usuarioId         Int
  // Relation with Lote
   lote             Lote @relation("ProdutosToLote", fields: [loteId], references: [id])
