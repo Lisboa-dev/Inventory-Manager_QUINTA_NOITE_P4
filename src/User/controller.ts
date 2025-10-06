@@ -1,9 +1,13 @@
 // src/user/user.controller.ts
 import { Request, Response } from 'express';
-import { userService } from './service';
-import { CreateUserBody } from './utils/validateBody'; // Importa o tipo para tipar a requisição
+import userService from './service';
+import type { CreateUserBody } from './utils/createUserDTO'; // Importa o tipo para tipar a requisição
 
-export const userController = {
+class userController {
+
+
+
+
 
   async create(req: Request<{}, {}, CreateUserBody>, res: Response) {
     try {
@@ -16,15 +20,35 @@ export const userController = {
       // Se o serviço lançar um erro (ex: e-mail duplicado), o controller o captura
       return res.status(400).json({ message: error.message });
     }
-  },
+  }
+
+
+
+
 
   async login(req: Request, res: Response) {
    
-  },
+  }
+
+
+
+
+
+  async update(req: Request, res: Response) { 
+
+    }
+
+
+
 
   async delete(req: Request, res: Response) {
      res.status(501).json({ message: "delete não implementado." });
-  },
+  }
+
+
+
+
+
 
   async getById(req: Request, res: Response) {
     const id = parseInt(req.params.id, 10);
@@ -35,3 +59,5 @@ export const userController = {
     return res.status(200).json(user);
   }
 };
+
+export default new userController();

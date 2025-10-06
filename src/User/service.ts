@@ -1,6 +1,6 @@
 
 import { PrismaClient } from '@prisma/client';
-import { CreateUserBody } from './utils/validateBody'; // Importamos o tipo
+import { CreateUserBody } from './utils/createUserDTO'; // Importamos o tipo
 import bcrypt from 'bcrypt';
 import {generateToken} from './utils/JWT/generateJWT';
 
@@ -8,7 +8,7 @@ import {generateToken} from './utils/JWT/generateJWT';
 
 const prisma = new PrismaClient();
 
-export const userService = {
+class userService {
   // Recebe um objeto 'user' com tipos garantidos pelo Zod
   async create(user: CreateUserBody) {
     // Verifica se o usuário já existe (exemplo de lógica de negócio)
@@ -30,17 +30,17 @@ export const userService = {
     });
 
     return newUser;
-  },
+  }
 
   async findById(id: number) {
     const user = await prisma.user.findUnique({ where: { id } });
     return user;
-  },
+  }
 
  async delete(id: number) {
     await prisma.user.delete({ where: { id } });
     return { message: 'Usuário deletado com sucesso.' };
-  },
+  }
 
   async login(email: string, senha: string) {
     try{
@@ -61,3 +61,5 @@ export const userService = {
 
   }
 };
+
+export default new userService;
