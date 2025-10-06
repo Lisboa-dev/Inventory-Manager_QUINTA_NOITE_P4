@@ -1,0 +1,203 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Inventory Manager API",
+    "version": "1.0.0",
+    "description": "API para gerenciamento de estoque (Usuários, Produtos, Lotes, Setores/Generos)."
+  },
+  "servers": [
+    { "url": "http://localhost:3000", "description": "Desenvolvimento" }
+  ],
+  "tags": [
+    { "name": "Auth", "description": "Autenticação de usuários" },
+    { "name": "Users", "description": "Gestão de usuários" },
+    { "name": "Produtos", "description": "Gestão de produtos" },
+    { "name": "Lotes", "description": "Gestão de lotes" },
+    { "name": "Generos", "description": "Gestão de setores (árvore)" }
+  ],
+  "paths": {
+    "/users": {
+      "post": {
+        "tags": ["Users"],
+        "summary": "Criar usuário",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UserCreate" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Usuário criado" },
+          "400": { "description": "Erro de validação" }
+        }
+      }
+    },
+    "/users/login": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Login do usuário",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Login" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Login realizado" },
+          "401": { "description": "Credenciais inválidas" }
+        }
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Buscar usuário por id",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "in": "path", "name": "id", "schema": { "type": "integer" }, "required": true }
+        ],
+        "responses": {
+          "200": { "description": "OK" },
+          "404": { "description": "Não encontrado" }
+        }
+      }
+    },
+    "/produtos": {
+      "get": {
+        "tags": ["Produtos"],
+        "summary": "Listar produtos",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "post": {
+        "tags": ["Produtos"],
+        "summary": "Criar produto",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/Produto" } }
+          }
+        },
+        "responses": { "201": { "description": "Criado" } }
+      }
+    },
+    "/produtos/{id}": {
+      "get": {
+        "tags": ["Produtos"],
+        "summary": "Buscar produto",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "in": "path", "name": "id", "schema": { "type": "integer" }, "required": true }
+        ],
+        "responses": { "200": { "description": "OK" }, "404": { "description": "Não encontrado" } }
+      },
+      "put": {
+        "tags": ["Produtos"],
+        "summary": "Atualizar produto",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "in": "path", "name": "id", "schema": { "type": "integer" }, "required": true }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ProdutoPartial" } } }
+        },
+        "responses": { "200": { "description": "Atualizado" } }
+      },
+      "delete": {
+        "tags": ["Produtos"],
+        "summary": "Deletar produto",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "in": "path", "name": "id", "schema": { "type": "integer" }, "required": true }
+        ],
+        "responses": { "204": { "description": "Sem conteúdo" } }
+      }
+    },
+    "/lotes": {
+      "get": { "tags": ["Lotes"], "summary": "Listar lotes", "security": [{ "bearerAuth": [] }], "responses": { "200": { "description": "OK" } } },
+      "post": {
+        "tags": ["Lotes"],
+        "summary": "Criar lote",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Lote" } } }
+        },
+        "responses": { "201": { "description": "Criado" } }
+      }
+    },
+    "/lotes/{id}": {
+      "get": { "tags": ["Lotes"], "summary": "Buscar lote", "security": [{ "bearerAuth": [] }], "parameters": [{ "in": "path", "name": "id", "schema": { "type": "integer" }, "required": true }], "responses": { "200": { "description": "OK" }, "404": { "description": "Não encontrado" } } },
+      "put": { "tags": ["Lotes"], "summary": "Atualizar lote", "security": [{ "bearerAuth": [] }], "parameters": [{ "in": "path", "name": "id", "schema": { "type": "integer" }, "required": true }], "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/LotePartial" } } } }, "responses": { "200": { "description": "Atualizado" } } },
+      "delete": { "tags": ["Lotes"], "summary": "Deletar lote", "security": [{ "bearerAuth": [] }], "parameters": [{ "in": "path", "name": "id", "schema": { "type": "integer" }, "required": true }], "responses": { "204": { "description": "Sem conteúdo" } } }
+    },
+    "/generos": {
+      "get": { "tags": ["Generos"], "summary": "Listar setores do usuário", "security": [{ "bearerAuth": [] }], "responses": { "200": { "description": "OK" } } },
+      "post": { "tags": ["Generos"], "summary": "Criar setor", "security": [{ "bearerAuth": [] }], "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/GeneroCreate" } } } }, "responses": { "201": { "description": "Criado" } } }
+    },
+    "/generos/{id}": {
+      "get": { "tags": ["Generos"], "summary": "Obter setor", "security": [{ "bearerAuth": [] }], "parameters": [{ "in": "path", "name": "id", "schema": { "type": "integer" }, "required": true }], "responses": { "200": { "description": "OK" }, "404": { "description": "Não encontrado" } } },
+      "put": { "tags": ["Generos"], "summary": "Atualizar setor", "security": [{ "bearerAuth": [] }], "parameters": [{ "in": "path", "name": "id", "schema": { "type": "integer" }, "required": true }], "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/GeneroUpdate" } } } }, "responses": { "200": { "description": "Atualizado" } } },
+      "delete": { "tags": ["Generos"], "summary": "Deletar setor", "security": [{ "bearerAuth": [] }], "parameters": [{ "in": "path", "name": "id", "schema": { "type": "integer" }, "required": true }], "responses": { "204": { "description": "Sem conteúdo" } }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "UserCreate": {
+        "type": "object",
+        "required": ["name", "email", "senha"],
+        "properties": {
+          "name": { "type": "string" },
+          "email": { "type": "string", "format": "email" },
+          "senha": { "type": "string", "minLength": 6 }
+        }
+      },
+      "Login": {
+        "type": "object",
+        "required": ["email", "senha"],
+        "properties": {
+          "email": { "type": "string", "format": "email" },
+          "senha": { "type": "string" }
+        }
+      },
+      "Produto": {
+        "type": "object",
+        "required": ["nome", "preco"],
+        "properties": {
+          "nome": { "type": "string" },
+          "descricao": { "type": "string" },
+          "preco": { "type": "number" },
+          "quantidadeEstoque": { "type": "integer", "minimum": 0 }
+        }
+      },
+      "ProdutoPartial": { "type": "object", "properties": { "nome": { "type": "string" }, "descricao": { "type": "string" }, "preco": { "type": "number" }, "quantidadeEstoque": { "type": "integer" } } },
+      "Lote": {
+        "type": "object",
+        "required": ["codigo", "quantidade", "dataValidade", "produtoId"],
+        "properties": {
+          "codigo": { "type": "string" },
+          "quantidade": { "type": "integer" },
+          "dataValidade": { "type": "string", "format": "date" },
+          "produtoId": { "type": "integer" }
+        }
+      },
+      "LotePartial": { "type": "object", "properties": { "codigo": { "type": "string" }, "quantidade": { "type": "integer" }, "dataValidade": { "type": "string", "format": "date" } } },
+      "GeneroCreate": { "type": "object", "required": ["nome"], "properties": { "nome": { "type": "string" }, "pai": { "type": "integer", "nullable": true } } },
+      "GeneroUpdate": { "type": "object", "properties": { "newName": { "type": "string" }, "nome": { "type": "string" }, "nodeId": { "type": "integer", "nullable": true } } }
+    }
+  }
+ }
+}
