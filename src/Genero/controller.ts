@@ -2,13 +2,15 @@ import {  Response } from 'express';
 import { Prisma } from '@prisma/client';
 import generoService from './service';
 import { AuthRequest } from '../middlewares/JWT/typeJWT';
+import { createGeneroBody }  from './utils/reqValidate';
+import { isNumberObject } from 'util/types';
 
 
 
 class generoController {
 
    
-    async list (req: AuthRequest, res: Response){
+    async getAll (req: AuthRequest, res: Response){
         const usuarioLogadoId = req.user?.id;
         if (usuarioLogadoId) {
             try {
@@ -54,18 +56,17 @@ class generoController {
 
 
    async create(req: AuthRequest, res: Response){
-        const { nome, pai } = req.body; // nodeId é o ID do gênero pai
+       
+        const { nome, pai } = createGeneroBody.parse(req.body);
+    
         const usuarioLogadoId = req.user?.id;
 
-        if (!nome) {
-            return res.status(400).json({ error: "O nome é obrigatório." });
-        }
         if (!usuarioLogadoId) {
             return res.status(401).json({ error: "Usuário não autenticado." });
         }
 
        try{
-        const data = generoService.create(usuarioLogadoId, nome, pai);
+        const data = await generoService.create(usuarioLogadoId, nome, pai);
         res.status(201).json(data);
 
        }catch (error) {
@@ -86,10 +87,10 @@ class generoController {
         const usuarioLogadoId = req.user?.id;
 
         const id = Number(req.params.id);
-        const { newName, nome, nodeId } = req.body;
+        const { name, pai } = req.body;
 
         // Prevenção de um nó se tornar seu próprio pai
-        if (id === nodeId) {
+        if (id === pai) {
             return res.status(400).json({ error: "Um setor não pode ser pai de si mesmo." });
         }
         if (!usuarioLogadoId) {
@@ -97,7 +98,7 @@ class generoController {
         }
 
         try {
-            const atualizado = await generoService.update(usuarioLogadoId, { id, newName, nome, nodeId });
+            const atualizado = await generoService.update(usuarioLogadoId, { id, name, pai });
             res.json(atualizado);
         } catch (error) {
             // Erro comum: o registro a ser atualizado não foi encontrado (ou não pertence ao usuário)
@@ -114,7 +115,13 @@ class generoController {
   
     async delete(req: AuthRequest, res: Response){
         const usuarioLogadoId = req.user?.id;
-        const id = Number(req.params.id);
+        const id = parseInt(req.params.id, 10);
+
+        if (isNaN(id)) {
+          return res.status(400).json({ message: "O ID fornecido na URL é inválido. Deve ser um número." });
+       }
+
+
 
         if (!usuarioLogadoId) {
             return res.status(401).json({ error: "Usuário não autenticado." });
