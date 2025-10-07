@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import userController from './controller.js';
 import { authenticateToken,  } from "../middlewares/JWT/authMiddleware.js";
-import {userResolverMiddleware} from '../middlewares/userResolverMiddleware.js';
+
 // Import validate and createUserSchema from their respective modules
 
 

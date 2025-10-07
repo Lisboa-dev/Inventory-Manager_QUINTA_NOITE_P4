@@ -1,12 +1,12 @@
 import { Router } from 'express';
 import ProdutoController from "./controller";
 import {authenticateToken} from '../middlewares/JWT/authMiddleware.js';
-import {userResolverMiddleware} from '../middlewares/userResolverMiddleware.js';
+
 
 
 const produtoRouter = Router();
 
-produtoRouter.use(authenticateToken, userResolverMiddleware);   
+produtoRouter.use(authenticateToken);   
 
 produtoRouter.get("/", ProdutoController.getAll);
 produtoRouter.get("/:id", ProdutoController.getById);

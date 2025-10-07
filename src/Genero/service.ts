@@ -6,10 +6,6 @@ const prisma = new PrismaClient();
 class generoService {
 
 
-
-
-
-
   async list(userId: number) {
     
 
@@ -45,7 +41,7 @@ class generoService {
                 usuarioId: userId
             },
             include: {
-                node: true,     // Inclui o pai direto
+                father: true,     // Inclui o pai direto
                 children: true, // Inclui os filhos diretos
             }
         });
@@ -83,7 +79,7 @@ class generoService {
                     if (!parentNode) {
                         return ({ error: "O setor pai não foi encontrado ou não pertence a você." });
                     }
-                    data.node = {
+                    data.father = {
                         connect: { id: father }
                     };
                 }
@@ -104,7 +100,7 @@ class generoService {
 
   async update( userId: number, data: JsonObject) {
   
-    const { id, nome, father } = data as { id: number; nome?: string; father?: number | null };
+    const { id, name, pai } = data as { id: number; name:string, pai?: number | null };
 
     if (!userId) {
         throw new Error("Usuário não encontrado");
@@ -112,17 +108,17 @@ class generoService {
 
     try {
                 const data: Prisma.GeneroUpdateInput = {};
-                if (nome) data.nome = nome;
+                if (name) data.nome = name;
     
                 // Lógica para mover o nó na árvore
-                if (father !== undefined) {
-                    if (father === null) {
+                if (pai !== undefined) {
+                    if (pai === null) {
                         // Mover para a raiz (tornar-se um nó sem pai)
-                        data.node = { disconnect: true };
+                        data.father = { disconnect: true };
                     } else {
                         // Mover para um novo pai
                         // Opcional: verificar se o novo pai existe e não cria um loop
-                        data.node = { connect: { id: father } };
+                        data.father = { connect: { id: pai } };
                     }
                 }
     
@@ -176,7 +172,7 @@ class generoService {
             const genreToDelete = await prisma.genero.findUnique({
             where: { id: generoId, usuarioId: userId },
             select: {
-                father: true, // ID do pai
+                fatherId: true, // ID do pai
                 children: { select: { id: true } },
                 lotes: { select: { id: true } },
             },
@@ -191,11 +187,11 @@ class generoService {
             await prisma.$transaction(async (tx) => {
                 // 3.1. Mover os lotes para o gênero pai (se houver)
                 if (genreToDelete.lotes.length > 0) {
-                    if (genreToDelete.father != null) {
+                    if (genreToDelete.fatherId != null) {
                         const loteIds = genreToDelete.lotes.map((lote) => lote.id);
                         await tx.lote.updateMany({
                             where: { id: { in: loteIds } },
-                            data: { genreId: genreToDelete.father }, // Assumindo que o campo é 'generoId'
+                            data: { genreId: genreToDelete.fatherId}, // Assumindo que o campo é 'generoId'
                         });
                  }else{
                     // Se não houver pai, podemos optar por definir os lotes como sem gênero (null) ou lidar de outra forma
@@ -206,10 +202,13 @@ class generoService {
                 // 3.2. Mover os subsetores (children) para o gênero pai
                 if (genreToDelete.children.length > 0) {
                 const childrenIds = genreToDelete.children.map((child) => child.id);
-                await tx.genero.updateMany({
+
+                let newFather:number | null;
+                if(genreToDelete.fatherId===null){newFather=null}else{newFather= genreToDelete.fatherId}
+               await tx.genero.updateMany({
                     where: { id: { in: childrenIds } },
-                    data: { father: genreToDelete.father },
-                });
+                    data: { fatherId: newFather },
+                })
                 }
 
                 // 3.3. Finalmente, deletar o gênero

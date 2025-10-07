@@ -33,8 +33,8 @@ model Genero {
   usuario   User @relation("GenerosToUser", fields: [usuarioId], references: [id], onDelete: Cascade)
   usuarioId Int
 
-  father   Int?
-  node     Genero?  @relation("GeneroToGenero", fields: [father], references: [id])
+  fatherId Int?
+  father   Genero?  @relation("GeneroToGenero", fields: [fatherId], references: [id])
   children Genero[] @relation("GeneroToGenero")
 
   lotes Lote[] @relation("LotesToGenre")
@@ -73,17 +73,16 @@ model Produto {
   usuario   User @relation("ProdutosToUser", fields: [usuarioId], references: [id], onDelete: Cascade)
   usuarioId Int
   // Relation with Lote
-  lote      Lote @relation("ProdutosToLote", fields: [loteId], references: [id])
+  lote      Lote @relation("ProdutosToLote", fields: [loteId], references: [id], onDelete: Cascade)
   loteId    Int
 
-  id                Int      @id @default(autoincrement())
-  barCode           String
-  nome              String
-  descricao         String?
-  preco             Decimal  @db.Decimal(10, 2)
-  quantidadeEstoque Int      @default(0)
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id        Int      @id @default(autoincrement())
+  barCode   String   @unique
+  nome      String
+  descricao String?
+  preco     Decimal  @db.Decimal(10, 2)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 //

@@ -10,7 +10,7 @@ model Produto {
 
 
   id                Int      @id @default(autoincrement())
-  barCode           String
+  barCode           String @unique
   nome              String
   descricao         String? 
   preco             Decimal   @db.Decimal(10, 2)

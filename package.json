@@ -10,7 +10,7 @@
     "dev": "tsx watch src/app.ts",
     "prisma:import": "prisma-import -s \"prisma/base.prisma\" -s \"src/**/*.prisma\" --output prisma/schema.prisma -f",
     "prisma:generate": "npm run prisma:import && prisma generate",
-    "prisma:migrate": "npm run prisma:import  && prisma migrate dev",
+    "prisma:migrate": "prisma migrate dev",
     "prisma:dbpush": "prisma db push",
     "db:image": "docker-compose up -d"
   },
