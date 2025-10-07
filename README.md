@@ -1,6 +1,8 @@
 # Inventory-Manager_QUINTA_NOITE_P4
 API para gerenciamento de estoque para avalição do professor Douglas da diciplina de Tópicos especiais de TI. Turma de 2025.2, Noite, Quinta. Aluno Matheus Lira Lisboa.
 
+obs: algumas inconsistencias a serem atualizada: falta de response adequado em alguns endpoints, id sequencial sendo retornado em vez de uuid e mapeamento de erros possiveis.
+
 ## Documentação da API (Swagger)
 
 A API expõe a documentação interativa via Swagger UI.
