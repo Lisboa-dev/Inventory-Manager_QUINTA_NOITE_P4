@@ -1,6 +1,7 @@
 import { Response, NextFunction } from 'express';
 import { verifyToken } from './valideteToken';
-import { PartialAuthRequest} from './typeJWT';
+import { AuthRequest } from './typeJWT';
+
 
 /**
  * Middleware para autenticar requisições usando JWT.
@@ -10,7 +11,7 @@ import { PartialAuthRequest} from './typeJWT';
  * @param res Objeto de resposta Express.
  * @param next Função para passar o controle para o próximo middleware.
  */
-export const authenticateToken = (req: PartialAuthRequest, res: Response, next: NextFunction) => {
+export const authenticateToken = (req: AuthRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1]; // Espera o formato 'Bearer TOKEN'
 
