@@ -4,7 +4,7 @@ import fs from "fs";
 import swaggerUi from "swagger-ui-express";
 
 export const setupSwagger = (app: Express) => {
-  const swaggerPath = path.join(process.cwd(), "src", "docs", "swagger.json");
+  const swaggerPath = path.join(process.cwd(), "src", "doc", "swagger.json");
   let swaggerDocument: any = {};
 
   try {

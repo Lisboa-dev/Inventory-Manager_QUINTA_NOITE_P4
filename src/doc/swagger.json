@@ -3,201 +3,487 @@
   "info": {
     "title": "Inventory Manager API",
     "version": "1.0.0",
-    "description": "API para gerenciamento de estoque (Usuários, Produtos, Lotes, Setores/Generos)."
+    "description": "API para gerenciamento de estoque pessoal, com autenticação JWT e gestão de Produtos, Lotes e Setores em árvore."
   },
   "servers": [
-    { "url": "http://localhost:3000", "description": "Desenvolvimento" }
+    {
+      "url": "http://localhost:3000",
+      "description": "Servidor de Desenvolvimento"
+    }
   ],
   "tags": [
-    { "name": "Auth", "description": "Autenticação de usuários" },
-    { "name": "Users", "description": "Gestão de usuários" },
-    { "name": "Produtos", "description": "Gestão de produtos" },
-    { "name": "Lotes", "description": "Gestão de lotes" },
-    { "name": "Generos", "description": "Gestão de setores (árvore)" }
+    { "name": "Autenticação", "description": "Endpoints para registro e login de usuários." },
+    { "name": "Usuário", "description": "Operações relacionadas ao usuário autenticado." },
+    { "name": "Gêneros (Setores )", "description": "Gestão da estrutura de setores em árvore." },
+    { "name": "Lotes", "description": "Gestão de lotes de produtos." },
+    { "name": "Produtos", "description": "Gestão de produtos individuais." }
   ],
   "paths": {
-    "/users": {
+    "/users/create": {
       "post": {
-        "tags": ["Users"],
-        "summary": "Criar usuário",
+        "tags": ["Autenticação"],
+        "summary": "Registrar um novo usuário",
+        "description": "Cria uma nova conta de usuário. Retorna os dados do usuário criado e um token de acesso.",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/UserCreate" }
+              "schema": { "$ref": "#/components/schemas/UserCreateInput" }
             }
           }
         },
         "responses": {
-          "201": { "description": "Usuário criado" },
-          "400": { "description": "Erro de validação" }
+          "201": {
+            "description": "Usuário criado com sucesso.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AuthResponse" } } }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" }
         }
       }
     },
-    "/users/login": {
+    "/users/": {
       "post": {
-        "tags": ["Auth"],
-        "summary": "Login do usuário",
+        "tags": ["Autenticação"],
+        "summary": "Autenticar um usuário",
+        "description": "Realiza o login com e-mail e senha, retornando os dados do usuário e um token de acesso JWT.",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/Login" }
+              "schema": { "$ref": "#/components/schemas/LoginInput" }
             }
           }
         },
         "responses": {
-          "200": { "description": "Login realizado" },
-          "401": { "description": "Credenciais inválidas" }
+          "200": {
+            "description": "Login bem-sucedido.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AuthResponse" } } }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
         }
-      }
-    },
-    "/users/{id}": {
+      },
       "get": {
-        "tags": ["Users"],
-        "summary": "Buscar usuário por id",
+        "tags": ["Usuário"],
+        "summary": "Obter dados do usuário logado",
         "security": [{ "bearerAuth": [] }],
-        "parameters": [
-          { "in": "path", "name": "id", "schema": { "type": "integer" }, "required": true }
-        ],
         "responses": {
-          "200": { "description": "OK" },
-          "404": { "description": "Não encontrado" }
+          "200": {
+            "description": "Dados do usuário autenticado.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UserResponse" } } }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      },
+      "put": {
+        "tags": ["Usuário"],
+        "summary": "Atualizar dados do usuário logado",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/UserUpdateInput" } }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Usuário atualizado com sucesso.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UserResponse" } } }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      },
+      "delete": {
+        "tags": ["Usuário"],
+        "summary": "Deletar a conta do usuário logado",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "204": { "description": "Conta deletada com sucesso." },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/generos/": {
+      "get": {
+        "tags": ["Gêneros (Setores)"],
+        "summary": "Listar todos os setores do usuário",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Lista de setores." },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      },
+      "post": {
+        "tags": ["Gêneros (Setores)"],
+        "summary": "Criar um novo setor",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/GeneroCreateInput" } } }
+        },
+        "responses": {
+          "201": { "description": "Setor criado com sucesso." },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/generos/{id}": {
+      "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer", "example": 1 } }],
+      "put": {
+        "tags": ["Gêneros (Setores)"],
+        "summary": "Atualizar um setor",
+        "description": "Permite renomear um setor e/ou movê-lo na árvore (alterando seu pai).",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/GeneroUpdateInput" } } }
+        },
+        "responses": {
+          "200": { "description": "Setor atualizado." },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      },
+      "delete": {
+        "tags": ["Gêneros (Setores)"],
+        "summary": "Deletar um setor",
+        "description": "Deleta um setor e move seus filhos e lotes para o nível acima.",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "204": { "description": "Setor deletado com sucesso." },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      },
+      "get": {
+        "tags": ["Gêneros (Setores)"],
+        "summary": "Obter um setor específico",
+        "description": "Busca e retorna os detalhes de um único setor, incluindo seus filhos diretos (subsetores).",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Detalhes do setor.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneroResponse"
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+   
+   "/lotes": {
+      "get": {
+        "tags": ["Lotes"],
+        "summary": "Listar todos os lotes do usuário",
+        "description": "Retorna uma lista de todos os lotes pertencentes ao usuário autenticado.",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Lista de lotes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/LoteResponse" }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      },
+      "post": {
+        "tags": ["Lotes"],
+        "summary": "Criar um novo lote",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/LoteCreateInput" } } }
+        },
+        "responses": {
+          "201": {
+            "description": "Lote criado com sucesso.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/LoteResponse" } } }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/lotes/{id}": {
+      "parameters": [{ "in": "path", "name": "id", "required": true, "description": "ID numérico do lote.", "schema": { "type": "integer", "example": 4 } }],
+      "get": {
+        "tags": ["Lotes"],
+        "summary": "Obter um lote específico",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Detalhes do lote.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/LoteResponse" } } }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      },
+      "put": {
+        "tags": ["Lotes"],
+        "summary": "Atualizar um lote",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/LoteUpdateInput" } } }
+        },
+        "responses": {
+          "200": {
+            "description": "Lote atualizado com sucesso.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/LoteResponse" } } }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      },
+      "delete": {
+        "tags": ["Lotes"],
+        "summary": "Deletar um lote",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "204": { "description": "Lote deletado com sucesso." },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" }
         }
       }
     },
     "/produtos": {
       "get": {
         "tags": ["Produtos"],
-        "summary": "Listar produtos",
+        "summary": "Listar todos os produtos do usuário",
+        "description": "Retorna uma lista de todos os produtos pertencentes ao usuário autenticado.",
         "security": [{ "bearerAuth": [] }],
-        "responses": { "200": { "description": "OK" } }
+        "responses": {
+          "200": {
+            "description": "Lista de produtos.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/ProdutoResponse" }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
       },
       "post": {
         "tags": ["Produtos"],
-        "summary": "Criar produto",
+        "summary": "Criar um novo produto",
         "security": [{ "bearerAuth": [] }],
         "requestBody": {
           "required": true,
-          "content": {
-            "application/json": { "schema": { "$ref": "#/components/schemas/Produto" } }
-          }
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ProdutoCreateInput" } } }
         },
-        "responses": { "201": { "description": "Criado" } }
+        "responses": {
+          "201": {
+            "description": "Produto criado com sucesso.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ProdutoResponse" } } }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
       }
     },
     "/produtos/{id}": {
+      "parameters": [{ "in": "path", "name": "id", "required": true, "description": "ID numérico do produto.", "schema": { "type": "integer", "example": 15 } }],
       "get": {
         "tags": ["Produtos"],
-        "summary": "Buscar produto",
+        "summary": "Obter um produto específico",
         "security": [{ "bearerAuth": [] }],
-        "parameters": [
-          { "in": "path", "name": "id", "schema": { "type": "integer" }, "required": true }
-        ],
-        "responses": { "200": { "description": "OK" }, "404": { "description": "Não encontrado" } }
+        "responses": {
+          "200": {
+            "description": "Detalhes do produto.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ProdutoResponse" } } }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
       },
       "put": {
         "tags": ["Produtos"],
-        "summary": "Atualizar produto",
+        "summary": "Atualizar um produto",
         "security": [{ "bearerAuth": [] }],
-        "parameters": [
-          { "in": "path", "name": "id", "schema": { "type": "integer" }, "required": true }
-        ],
         "requestBody": {
-          "required": true,
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ProdutoPartial" } } }
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ProdutoUpdateInput" } } }
         },
-        "responses": { "200": { "description": "Atualizado" } }
+        "responses": {
+          "200": {
+            "description": "Produto atualizado com sucesso.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ProdutoResponse" } } }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
       },
       "delete": {
         "tags": ["Produtos"],
-        "summary": "Deletar produto",
+        "summary": "Deletar um produto",
         "security": [{ "bearerAuth": [] }],
-        "parameters": [
-          { "in": "path", "name": "id", "schema": { "type": "integer" }, "required": true }
-        ],
-        "responses": { "204": { "description": "Sem conteúdo" } }
+        "responses": {
+          "204": { "description": "Produto deletado com sucesso." },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
       }
-    },
-    "/lotes": {
-      "get": { "tags": ["Lotes"], "summary": "Listar lotes", "security": [{ "bearerAuth": [] }], "responses": { "200": { "description": "OK" } } },
-      "post": {
-        "tags": ["Lotes"],
-        "summary": "Criar lote",
-        "security": [{ "bearerAuth": [] }],
-        "requestBody": {
-          "required": true,
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Lote" } } }
-        },
-        "responses": { "201": { "description": "Criado" } }
-      }
-    },
-    "/lotes/{id}": {
-      "get": { "tags": ["Lotes"], "summary": "Buscar lote", "security": [{ "bearerAuth": [] }], "parameters": [{ "in": "path", "name": "id", "schema": { "type": "integer" }, "required": true }], "responses": { "200": { "description": "OK" }, "404": { "description": "Não encontrado" } } },
-      "put": { "tags": ["Lotes"], "summary": "Atualizar lote", "security": [{ "bearerAuth": [] }], "parameters": [{ "in": "path", "name": "id", "schema": { "type": "integer" }, "required": true }], "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/LotePartial" } } } }, "responses": { "200": { "description": "Atualizado" } } },
-      "delete": { "tags": ["Lotes"], "summary": "Deletar lote", "security": [{ "bearerAuth": [] }], "parameters": [{ "in": "path", "name": "id", "schema": { "type": "integer" }, "required": true }], "responses": { "204": { "description": "Sem conteúdo" } } }
-    },
-    "/generos": {
-      "get": { "tags": ["Generos"], "summary": "Listar setores do usuário", "security": [{ "bearerAuth": [] }], "responses": { "200": { "description": "OK" } } },
-      "post": { "tags": ["Generos"], "summary": "Criar setor", "security": [{ "bearerAuth": [] }], "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/GeneroCreate" } } } }, "responses": { "201": { "description": "Criado" } } }
-    },
-    "/generos/{id}": {
-      "get": { "tags": ["Generos"], "summary": "Obter setor", "security": [{ "bearerAuth": [] }], "parameters": [{ "in": "path", "name": "id", "schema": { "type": "integer" }, "required": true }], "responses": { "200": { "description": "OK" }, "404": { "description": "Não encontrado" } } },
-      "put": { "tags": ["Generos"], "summary": "Atualizar setor", "security": [{ "bearerAuth": [] }], "parameters": [{ "in": "path", "name": "id", "schema": { "type": "integer" }, "required": true }], "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/GeneroUpdate" } } } }, "responses": { "200": { "description": "Atualizado" } } },
-      "delete": { "tags": ["Generos"], "summary": "Deletar setor", "security": [{ "bearerAuth": [] }], "parameters": [{ "in": "path", "name": "id", "schema": { "type": "integer" }, "required": true }], "responses": { "204": { "description": "Sem conteúdo" } }
-    }
-  },
-  "components": {
+    }},
+   "components": {
     "securitySchemes": {
       "bearerAuth": {
         "type": "http",
         "scheme": "bearer",
-        "bearerFormat": "JWT"
+        "bearerFormat": "JWT",
+        "description": "Insira o token JWT no formato: Bearer {token}"
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Requisição inválida. Verifique os dados enviados.",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorValidation" } } }
+      },
+      "Unauthorized": {
+        "description": "Não autorizado. O token de acesso é inválido, expirado ou não foi fornecido.",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
+      },
+      "NotFound": {
+        "description": "Recurso não encontrado.",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
       }
     },
     "schemas": {
-      "UserCreate": {
+      "UserBase": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 1 },
+          "uuid": { "type": "string", "format": "uuid", "example": "a1b2c3d4-e5f6-7890-1234-567890abcdef" },
+          "name": { "type": "string", "example": "João da Silva" },
+          "email": { "type": "string", "format": "email", "example": "joao.silva@example.com" },
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "UserResponse": {
+        "description": "Dados públicos de um usuário.",
+        "allOf": [{ "$ref": "#/components/schemas/UserBase" }]
+      },
+      "AuthResponse": {
+        "type": "object",
+        "properties": {
+          "user": { "$ref": "#/components/schemas/UserResponse" },
+          "token": { "type": "string", "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." }
+        }
+      },
+      "UserCreateInput": {
         "type": "object",
         "required": ["name", "email", "senha"],
         "properties": {
-          "name": { "type": "string" },
-          "email": { "type": "string", "format": "email" },
-          "senha": { "type": "string", "minLength": 6 }
+          "name": { "type": "string", "minLength": 3, "example": "João da Silva" },
+          "email": { "type": "string", "format": "email", "example": "joao.silva@example.com" },
+          "senha": { "type": "string", "minLength": 6, "example": "senhaForte123" }
         }
       },
-      "Login": {
+      "LoginInput": {
         "type": "object",
         "required": ["email", "senha"],
         "properties": {
-          "email": { "type": "string", "format": "email" },
-          "senha": { "type": "string" }
+          "email": { "type": "string", "format": "email", "example": "joao.silva@example.com" },
+          "senha": { "type": "string", "example": "senhaForte123" }
         }
       },
-      "Produto": {
+      "UserUpdateInput": {
         "type": "object",
-        "required": ["nome", "preco"],
         "properties": {
-          "nome": { "type": "string" },
-          "descricao": { "type": "string" },
-          "preco": { "type": "number" },
-          "quantidadeEstoque": { "type": "integer", "minimum": 0 }
+          "name": { "type": "string", "minLength": 3, "example": "João da Silva Santos" },
+          "senha": { "type": "string", "minLength": 6, "description": "Para alterar a senha, envie a nova senha.", "example": "novaSenhaSuperForte" }
         }
       },
-      "ProdutoPartial": { "type": "object", "properties": { "nome": { "type": "string" }, "descricao": { "type": "string" }, "preco": { "type": "number" }, "quantidadeEstoque": { "type": "integer" } } },
-      "Lote": {
+      "GeneroCreateInput": {
         "type": "object",
-        "required": ["codigo", "quantidade", "dataValidade", "produtoId"],
+        "required": ["nome"],
         "properties": {
-          "codigo": { "type": "string" },
-          "quantidade": { "type": "integer" },
-          "dataValidade": { "type": "string", "format": "date" },
-          "produtoId": { "type": "integer" }
+          "nome": { "type": "string", "minLength": 3, "example": "Congelados" },
+          "pai": { "type": "integer", "nullable": true, "description": "ID do setor pai (opcional ).", "example": 1 }
         }
       },
-      "LotePartial": { "type": "object", "properties": { "codigo": { "type": "string" }, "quantidade": { "type": "integer" }, "dataValidade": { "type": "string", "format": "date" } } },
-      "GeneroCreate": { "type": "object", "required": ["nome"], "properties": { "nome": { "type": "string" }, "pai": { "type": "integer", "nullable": true } } },
-      "GeneroUpdate": { "type": "object", "properties": { "newName": { "type": "string" }, "nome": { "type": "string" }, "nodeId": { "type": "integer", "nullable": true } } }
+      "GeneroUpdateInput": {
+        "type": "object",
+        "properties": {
+          "nome": { "type": "string", "minLength": 3, "example": "Congelados Especiais" },
+          "pai": { "type": "integer", "nullable": true, "description": "ID do novo setor pai. Envie 'null' para mover para a raiz.", "example": 2 }
+        }
+      },
+      "GeneroResponse": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer", "example": 5 },
+        "nome": { "type": "string", "example": "Laticínios" },
+        "fatherId": { "type": "integer", "nullable": true, "example": 1 },
+        "usuarioId": { "type": "integer", "example": 42 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "children": {
+          "type": "array",
+          "description": "Lista de subsetores (filhos diretos).",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "integer", "example": 10 },
+              "nome": { "type": "string", "example": "Queijos" }
+            }
+          }
+        }
+      }
+    },
+
+      "LoteCreateInput": {
+        "type": "object",
+        "required": ["codigo", "quantidade", "dataValidade", "generoId"],
+        "properties": {
+          "codigo": { "type": "string", "example": "LOTE-2025-10-A1" },
+          "quantidade": { "type": "integer", "minimum": 0, "example": 100 },
+          "dataValidade": { "type": "string", "format": "date-time", "example": "2026-12-31T00:00:00.000Z" },
+          "generoId": { "type": "integer", "example": 8 }
+        }
+      },
+      "ProdutoCreateInput": {
+        "type": "object",
+        "required": ["nome", "barCode", "preco", "quantidadeEstoque", "loteId"],
+        "properties": {
+          "nome": { "type": "string", "example": "Pizza Congelada" },
+          "barCode": { "type": "string", "example": "7891234567890" },
+          "descricao": { "type": "string", "example": "Pizza de calabresa com borda recheada" },
+          "preco": { "type": "number", "format": "float", "minimum": 0.01, "example": 29.99 },
+          "quantidadeEstoque": { "type": "integer", "minimum": 0, "example": 50 },
+          "loteId": { "type": "integer", "example": 4 }
+        }
+
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string" }
+        }
+      },
+      "ErrorValidation": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string", "example": "Erro de validação nos dados enviados." },
+          "errors": { "type": "object", "description": "Objeto contendo os erros para cada campo." }
+        }
+      }
     }
   }
  }
-}
+  
