@@ -1,66 +1,11 @@
-/*import { Request, Response } from "express";
-import ProdutoService from "./service";
 
-class ProdutoController {
-  async listar(req: Request, res: Response) {
-    try {
-      const produtos = await ProdutoService.listarTodos();
-      res.json(produtos);
-    } catch (e: any) {
-      res.status(500).json({ error: e.message });
-    }
-  }
-
-  async buscar(req: Request, res: Response) {
-    try {
-      const id = Number(req.params.id);
-      const produto = await ProdutoService.buscarPorId(id);
-      if (!produto) return res.status(404).json({ error: "Não encontrado" });
-      res.json(produto);
-    } catch (e: any) {
-      res.status(500).json({ error: e.message });
-    }
-  }
-
-  async criar(req: Request, res: Response) {
-    try {
-      const novo = await ProdutoService.criar(req.body);
-      res.status(201).json(novo);
-    } catch (e: any) {
-      res.status(400).json({ error: e.message });
-    }
-  }
-
-  async atualizar(req: Request, res: Response) {
-    try {
-      const id = Number(req.params.id);
-      const atualizado = await ProdutoService.atualizar(id, req.body);
-      res.json(atualizado);
-    } catch (e: any) {
-      res.status(400).json({ error: e.message });
-    }
-  }
-
-  async deletar(req: Request, res: Response) {
-    try {
-      const id = Number(req.params.id);
-      await ProdutoService.deletar(id);
-      res.status(204).send();
-    } catch (e: any) {
-      res.status(400).json({ error: e.message });
-    }
-  }
-}
-
-export default new ProdutoController();
-*/
 
 // src/controllers/ProdutoController.ts
 
 import { Response } from 'express';
 import { AuthRequest } from '../middlewares/JWT/typeJWT'; // Sua interface de requisição autenticada
 import produtoService from './service'; // Importando a instância do serviço
-import { createProdutoBody, updateProdutoBody } from './utils/reqValidate'; // Bodys Zod para validação
+import { produtoCreateBody, updateProdutoBody } from './utils/reqValidate'; // Bodys Zod para validação
 import { handleError } from '../utils/errorClass'; // Seu handler de erro global
 
 // A instância do serviço que o controller usará.
@@ -75,7 +20,7 @@ class ProdutoController {
       const usuarioId = req.user!.id;
 
       // 1. Valida o corpo da requisição com o Body Zod.
-      const produtoData = createProdutoBody.parse(req.body);
+      const produtoData = produtoCreateBody.parse(req.body);
 
       // 2. Chama o serviço com os dados validados.
       const novoProduto = await produtoService.create(usuarioId, produtoData);

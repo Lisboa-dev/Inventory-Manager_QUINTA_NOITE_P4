@@ -1,87 +1,82 @@
-
-import { z } from 'zod';
-
-export const produtoCreateSchema = z.object({
-  // --- Campo 'nome' ---
-  nome: z.string({
-    required_error: "O nome do produto é obrigatório.",
-    invalid_type_error: "O nome do produto deve ser um texto.",
-  }).min(3, { message: "O nome do produto deve ter pelo menos 3 caracteres." }),
-
-  // --- Campo 'descricao' (Opcional) ---
-  // O .optional() corresponde ao '?' no seu tipo DTO.
-  descricao: z.string({
-    invalid_type_error: "A descrição deve ser um texto.",
-  }).optional(),
-
-  // --- Campo 'preco' ---
-  // z.coerce.number é ideal aqui, pois converte uma string (comum em JSON) para número.
-  preco: z.coerce.number({
-    required_error: "O preço é obrigatório.",
-    invalid_type_error: "O preço deve ser um número válido.",
-  }).positive({ message: "O preço deve ser um valor positivo." })
-    .multipleOf(0.01, { message: "O preço deve ter no máximo duas casas decimais." }), // Validação extra para formato monetário
-
-  // --- Campo 'barCode' ---
-  barCode: z.string({
-    required_error: "O código de barras é obrigatório.",
-    invalid_type_error: "O código de barras deve ser um texto.",
-  }).min(1, { message: "O código de barras não pode estar em branco." }),
-
-  // --- Campo 'loteId' ---
-  loteId: z.number({
-    required_error: "O ID do lote é obrigatório.",
-    invalid_type_error: "O ID do lote deve ser um número.",
-  }).int({ message: "O ID do lote deve ser um número inteiro." })
-    .positive({ message: "O ID do lote deve ser um número positivo." }),
-});
-
-export const updateProdutoBody = createProdutoBody.partial();
-
-export type CreateProdutoInput = z.infer<typeof createProdutoBody>;
-export type UpdateProdutoInput = z.infer<typeof updateProdutoBody>;
-
 // src/schemas/produto.schemas.ts
-/*
+
 import { z } from 'zod';
 
-// Esquema Zod que valida e corresponde ao seu ProdutoCreateDTO
-export const produtoCreateSchema = z.object({
+export const produtoCreateBody = z.object({
   // --- Campo 'nome' ---
   nome: z.string({
-    required_error: "O nome do produto é obrigatório.",
-    invalid_type_error: "O nome do produto deve ser um texto.",
+    error: (issue) => {
+      if (issue.code === "invalid_type") {
+        if (issue.input === undefined) return "O nome é obrigatório.";
+        return "O nome deve ser um texto.";
+      }
+      // Retorna a mensagem padrão do Zod para outros erros (como .min())
+      return { message: issue.message || "Erro de validação no nome." };
+    }
   }).min(3, { message: "O nome do produto deve ter pelo menos 3 caracteres." }),
 
   // --- Campo 'descricao' (Opcional) ---
-  // O .optional() corresponde ao '?' no seu tipo DTO.
   descricao: z.string({
-    invalid_type_error: "A descrição deve ser um texto.",
+    error: (issue) => {
+      // Para campos opcionais, não precisamos verificar 'undefined'.
+      // Apenas o tipo, se o campo for fornecido.
+      if (issue.code === "invalid_type") {
+        return "A descrição deve ser um texto.";
+      }
+      return { message: issue.message || "Erro na descrição." };
+    }
   }).optional(),
 
   // --- Campo 'preco' ---
-  // z.coerce.number é ideal aqui, pois converte uma string (comum em JSON) para número.
   preco: z.coerce.number({
-    required_error: "O preço é obrigatório.",
-    invalid_type_error: "O preço deve ser um número válido.",
-  }).positive({ message: "O preço deve ser um valor positivo." })
-    .multipleOf(0.01, { message: "O preço deve ter no máximo duas casas decimais." }), // Validação extra para formato monetário
+    error: (issue) => {
+      if (issue.code === "invalid_type") {
+        if (issue.input === undefined) return "O preço é obrigatório.";
+        if (issue.input === null) return "O preço não pode ser nulo.";
+        return "O preço deve ser um número válido.";
+      }
+      return { message: issue.message || "O preço deve ser um número válido." };
+    }
+  })
+  .positive({ message: "O preço deve ser um valor positivo." })
+  .multipleOf(0.01, { message: "O preço deve ter no máximo duas casas decimais." }),
 
-  // --- Campo 'barCode' ---
+  // --- Campo 'barCode' (CORRIGIDO) ---
   barCode: z.string({
-    required_error: "O código de barras é obrigatório.",
-    invalid_type_error: "O código de barras deve ser um texto.",
+    // Substituímos as propriedades antigas por esta função
+    error: (issue) => {
+      if (issue.code === "invalid_type") {
+        // Se o campo não foi fornecido
+        if (issue.input === undefined) {
+          return "O código de barras é obrigatório.";
+        }
+        // Se o campo foi fornecido, mas não é uma string (ex: barCode: 123)
+        return "O código de barras deve ser um texto.";
+      }
+      // Para outros erros (como o .min() abaixo), usa a mensagem padrão deles
+      return { message: issue.message || "Erro no código de barras." };
+    }
   }).min(1, { message: "O código de barras não pode estar em branco." }),
 
   // --- Campo 'loteId' ---
   loteId: z.number({
-    required_error: "O ID do lote é obrigatório.",
-    invalid_type_error: "O ID do lote deve ser um número.",
-  }).int({ message: "O ID do lote deve ser um número inteiro." })
-    .positive({ message: "O ID do lote deve ser um número positivo." }),
+    error: (issue) => {
+      if (issue.code === "invalid_type") {
+        if (issue.input === undefined) return "O ID do lote é obrigatório.";
+        if (issue.input === null) return "O ID do lote não pode ser nulo.";
+        return "O ID do lote deve ser um número válido.";
+      }
+      return { message: issue.message || "O ID do lote deve ser um número válido." };
+    }
+  })
+  .int({ message: "O ID do lote deve ser um número inteiro." })
+  .positive({ message: "O ID do lote deve ser um número positivo." }),
 });
 
-// (Opcional, mas recomendado) Inferir o tipo a partir do esquema Zod.
-// Isso garante que sua "fonte da verdade" seja o esquema, não o tipo manual.
-export type ProdutoCreateInput = z.infer<typeof produtoCreateSchema>;
+// --- Correção nos nomes para evitar erros de referência ---
+// Note que os tipos devem ser inferidos dos Bodys corretos.
+export const updateProdutoBody = produtoCreateBody.partial();
+
+export type CreateProdutoInput = z.infer<typeof produtoCreateBody>;
+export type UpdateProdutoInput = z.infer<typeof updateProdutoBody>;
 
