@@ -4,7 +4,7 @@ import { CreateUserInput } from './utils/reqValidate'; // Importamos o tipo
 import bcrypt from 'bcrypt';
 import {generateToken} from './utils/JWT/generateJWT';
 import { NotFoundError, ServiceError } from '../utils/errorClass';
-import { toSafeUser } from './utils/serealizer';
+import { toSafeUser, toClearUser } from './utils/serealizer';
 
 
 
@@ -75,6 +75,7 @@ class userService {
     async delete(id: number): Promise<void> { // Um delete bem-sucedido não precisa retornar nada
         try {
             await prisma.user.delete({ where: {  id } });
+            
         } catch (error) {
             if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
                 throw new NotFoundError("Usuário não encontrado.");
@@ -89,11 +90,14 @@ class userService {
 
   async login(email: string, senha: string) {
     try{
-      const user = await prisma.user.findUnique({ where: { email } });
-      const senhaValida = user && await bcrypt.compare(senha, user.senha);
-      if (user && senhaValida) {
-        const token = generateToken({ uuid: user.uuid, email: user.email, nome:  user.name });
-        const userSafe = toSafeUser(user);
+      const userQ = await prisma.user.findUnique({ where: { email } });
+      const senhaValida = userQ && await bcrypt.compare(senha, userQ.senha);
+    if (userQ && senhaValida) {
+
+       
+        let user = toClearUser(userQ);
+        const token = generateToken(user);
+        const userSafe = toSafeUser(userQ);
         return{ user: userSafe, token };
       }else{
         return null;

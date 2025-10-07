@@ -2,7 +2,7 @@
 import { Request, Response } from 'express';
 import userService from './service';
 import { createUserBody, loginBody } from './utils/reqValidate'; // Importa o tipo para tipar a requisição
-import { AuthRequest, PartialAuthRequest } from '../middlewares/JWT/typeJWT.js';
+import { AuthRequest } from '../middlewares/JWT/typeJWT.js';
 import { handleError } from '../utils/errorClass';
 
 class userController {
@@ -80,9 +80,8 @@ class userController {
     const userId = req.user!.id;
     
     await userService.delete(userId );
-    
     // Sucesso em um delete resulta em 204 No Content, sem corpo na resposta.
-    return res.status(204).send();
+    return res.json({"message":"deleção concluida com sucesso"})
   } catch (error) {
     return handleError(res, error);
   }
