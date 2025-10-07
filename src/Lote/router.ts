@@ -1,11 +1,11 @@
 import { Router } from 'express';
 import loteController from "./controller";
 import {authenticateToken} from '../middlewares/JWT/authMiddleware.js';
-import {userResolverMiddleware} from '../middlewares/userResolverMiddleware.js';
+
 
 const loteRouter = Router();
 
-loteRouter.use(authenticateToken, userResolverMiddleware);
+loteRouter.use(authenticateToken);
 
 loteRouter.get("/", loteController.getAll);
 loteRouter.get("/:id", loteController.getById);

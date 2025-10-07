@@ -1,133 +1,27 @@
-/*import { PrismaClient } from "@prisma/client";
-import LoteCreateDTO from "./utils/LoteDTOs";
-const prisma = new PrismaClient();
-
-
-
-class LoteService {
-
-  async listarTodos(userLogadoId: string) {
-    let userId = await prisma.user.findUnique({ where: { uuid: userLogadoId } });
-    if (!userId) throw new Error("Usuário não encontrado");
-
-    return prisma.lote.findMany({
-      include: { produto: true }, where: { usuarioId: userId.id }
-    });
-  }
-
-  async buscarPorId(id: number) {
-    return prisma.lote.findUnique({
-      where: { id },
-      include: { produto: true },
-    });
-  }
-
-  async criar(data: LoteCreateDTO) {
-    const parsedDate = new Date(data.dataValidade);
-    if (isNaN(parsedDate.getTime())) throw new Error("Data inválida");
-
-    return prisma.$transaction(async (tx) => {
-      const produto = await tx.produto.findUnique({
-        where: { id: data.produtoId },
-      });
-      if (!produto) throw new Error("Produto não encontrado");
-
-      const lote = await tx.lote.create({
-        data: {
-          codigo: data.codigo,
-          quantidade: data.quantidade,
-          dataValidade: parsedDate,
-          produtoId: data.produtoId,
-        },
-      });
-
-      await tx.produto.update({
-        where: { id: data.produtoId },
-        data: { quantidadeEstoque: produto.quantidadeEstoque + data.quantidade },
-      });
-
-      return lote;
-    });
-  }
-
-  async atualizar(id: number, dados: Partial<LoteCreateDTO>) {
-    const lote = await prisma.lote.findUnique({ where: { id } });
-    if (!lote) throw new Error("Lote não encontrado");
-
-    return prisma.$transaction(async (tx) => {
-      if (dados.quantidade !== undefined) {
-        const diff = dados.quantidade - lote.quantidade;
-        await tx.produto.update({
-          where: { id: lote.produtoId },
-          data: {
-            quantidadeEstoque: {
-              increment: diff,
-            },
-          },
-        });
-      }
-
-      return tx.lote.update({
-        where: { id },
-        data: {
-          codigo: dados.codigo,
-          quantidade: dados.quantidade,
-          dataValidade: dados.dataValidade
-            ? new Date(dados.dataValidade)
-            : undefined,
-        },
-      });
-    });
-  }
-
-  async deletar(id: number) {
-    const lote = await prisma.lote.findUnique({ where: { id } });
-    if (!lote) throw new Error("Lote não encontrado");
-
-    return prisma.$transaction(async (tx) => {
-      await tx.produto.update({
-        where: { id: lote.produtoId },
-        data: {
-          quantidadeEstoque: {
-            decrement: lote.quantidade,
-          },
-        },
-      });
-      await tx.lote.delete({ where: { id } });
-    });
-  }
-}
-
-export default new LoteService();
-
-*/
 
 
 // src/services/LoteService.ts
 
 import { Prisma, PrismaClient } from '@prisma/client';
 import { ServiceError, NotFoundError } from '../utils/errorClass'; // Reutilizando os erros customizados
+import type {LoteCreateInput} from './utils/reqValidate'
 const prisma = new PrismaClient();
 
 // Interface para os dados de criação e atualização para garantir a tipagem
-interface LoteData {
-  codigo: string;
-  quantidade: number;
-  dataValidade: Date;
-  genreId: number;
-}
+
 
 export default class LoteService {
   /**
    * Cria um novo lote para o usuário.
    */
-  async create(usuarioId: number, data: LoteData) {
+  async create(usuarioId: number, data:LoteCreateInput) {
     // Verifica se o gênero (setor) ao qual o lote será associado pertence ao usuário
-    const genreExists = await prisma.genero.findFirst({
+      const genreCount = await prisma.genero.count({
       where: { id: data.genreId, usuarioId },
     });
 
-    if (!genreExists) {
+    // Se a contagem for 0, o gênero não existe ou não pertence ao usuário.
+    if (genreCount === 0) {
       throw new NotFoundError("Setor não encontrado ou não pertence a este usuário.");
     }
 
@@ -184,7 +78,7 @@ export default class LoteService {
   /**
    * Atualiza um lote existente.
     */
-  async update(usuarioId: number, loteId: number, data: Partial<LoteData>) {
+  async update(usuarioId: number, loteId: number, data: Partial<LoteCreateInput>) {
     // Primeiro, verifica se o lote que se quer atualizar realmente existe e pertence ao usuário
     const loteExists = await prisma.lote.count({
       where: { id: loteId, usuarioId },
