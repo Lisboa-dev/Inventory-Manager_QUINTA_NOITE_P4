@@ -1,7 +1,6 @@
 // src/app.ts
 import express, { Express } from "express";
 import { PrismaClient } from "@prisma/client";
-
 import userRouter from "./User/router";
 import loteRouter from "./Lote/router";
 import produtoRouter from "./Produto/router";
@@ -12,7 +11,7 @@ import { authenticateToken } from "./middlewares/JWT/authMiddleware.js";
 import { setupSwagger } from "./swagger";
 
 const app: Express = express();
-const port = 3000;
+const port =  process.env.PORT ? Number(process.env.PORT) : 3000;
 const prisma = new PrismaClient();
 
 app.use(express.json());

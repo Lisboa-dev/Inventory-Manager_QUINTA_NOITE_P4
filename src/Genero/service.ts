@@ -7,7 +7,6 @@ class generoService {
 
 
   async list(userId: number) {
-    
 
     if (!userId) {
         throw new Error("Usuário não encontrado");

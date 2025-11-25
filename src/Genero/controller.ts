@@ -127,7 +127,7 @@ class generoController {
             return res.status(401).json({ error: "Usuário não autenticado." });
         }
 
- try {
+       try {
             await generoService.delete(usuarioLogadoId, id);
             res.status(204).send("genero deletado");
         } catch (error) {  
