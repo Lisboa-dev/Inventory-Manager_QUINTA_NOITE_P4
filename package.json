@@ -4,15 +4,12 @@
   "description": "API para gerenciamento de estoque para avalição do professor Douglas da diciplina de Tópicos especiais de TI. Turma de 2025.2, Noite, Quinta. Aluno Matheus Lira Lisboa.",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc",
-    "start": "node dist/index.js",
-    "dev": "tsx watch src/app.ts",
     "prisma:import": "prisma-import -s \"prisma/base.prisma\" -s \"src/**/*.prisma\" --output prisma/schema.prisma -f",
-    "prisma:generate": "npm run prisma:import && prisma generate",
+    "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:dbpush": "prisma db push",
-    "db:image": "docker-compose up -d"
+    "build": "tsc",
+    "start": "node dist/index.js"
   },
   "repository": {
     "type": "git",
