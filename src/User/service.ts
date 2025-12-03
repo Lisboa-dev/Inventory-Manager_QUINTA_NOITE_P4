@@ -38,6 +38,8 @@ class userService {
 }
 
 
+
+
   async findById(id: number) {
 
     const user = await prisma.user.findUnique({ where: { id } });
@@ -50,7 +52,7 @@ class userService {
 
 
   
-    async update(id: number, data: CreateUserInput) { // Use o tipo de update do Zod
+  async update(id: number, data: CreateUserInput) { // Use o tipo de update do Zod
         try {
             const updatedUser = await prisma.user.update({
                 where: { id },
