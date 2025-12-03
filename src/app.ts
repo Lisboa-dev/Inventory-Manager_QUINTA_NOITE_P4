@@ -1,7 +1,7 @@
 // src/app.ts
 import express, { Express } from "express";
 import { PrismaClient } from "@prisma/client";
-
+import cors from "cors";
 import userRouter from "./User/router";
 import loteRouter from "./Lote/router";
 import produtoRouter from "./Produto/router";
@@ -19,6 +19,14 @@ app.use(express.json());
 
 // Configuração do Swagger
 setupSwagger(app);
+
+
+// Permitir apenas o domínio do front-end hospedado no Vercel
+app.use(cors({
+  origin: "https://front-end-inventory-manager-quinta-noite-p4-3l9usyzm7.vercel.app",
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
 
 // Rotas
 app.use('/users', userRouter);
