@@ -23,7 +23,7 @@ setupSwagger(app);
 
 // Permitir apenas o domínio do front-end hospedado no Vercel
 app.use(cors({
-  origin: process.env.CLIENT_DOMAIN || 'http://localhost:3001',
+  origin: process.env.CLIENT_DOMAIN,
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"]
 }));
