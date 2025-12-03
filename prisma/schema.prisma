@@ -91,7 +91,7 @@ model Produto {
 
 model User {
   id    Int    @id @default(autoincrement())
-  name  String
+  nome  String
   email String @unique
   senha String
   uuid  String @unique @default(uuid())

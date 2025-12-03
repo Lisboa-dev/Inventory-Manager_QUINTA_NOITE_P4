@@ -29,7 +29,7 @@ class userService {
     // 2. Cria o usuário com a senha hasheada
     const newUser = await prisma.user.create({
       data: {
-        name: user.name,
+        nome: user.nome,
         email: user.email,
         senha: hashedPassword, // Salva o hash, não a senha original
       },
