@@ -22,8 +22,12 @@ setupSwagger(app);
 
 
 // Permitir apenas o domínio do front-end hospedado no Vercel
+
 app.use(cors({
-  origin: process.env.CLIENT_DOMAIN,
+  origin: [
+    "https://front-end-inventory-manager-quinta.vercel.app",
+    "http://localhost:3000"
+  ], // Adicione localhost para desenvolvimento local
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"]
 }));
