@@ -98,9 +98,10 @@ class userService {
 
        
         let user = toClearUser(userQ);
-        const token = generateToken(user);
+       // const token = generateToken(user);
         const userSafe = toSafeUser(userQ);
-        return{ user: userSafe, token };
+       // return{ user: userSafe, token };
+          return{ user: userSafe};
       }else{
         return null;
       }
