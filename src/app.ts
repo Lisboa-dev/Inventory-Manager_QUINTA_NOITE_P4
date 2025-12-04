@@ -23,15 +23,21 @@ setupSwagger(app);
 
 // Permitir apenas o domínio do front-end hospedado no Vercel
 
-
-app.use(cors())
-app.options('*', cors())
+app.use(cors({
+  origin: [
+    "https://front-end-inventory-manager-quinta.vercel.app",
+    "http://localhost:3000"
+  ], // Adicione localhost para desenvolvimento local
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
 
 // Rotas
 app.use('/users', userRouter);
 app.use('/lotes', authenticateToken, loteRouter);
 app.use('/produtos', authenticateToken, produtoRouter);
 app.use('/generos', authenticateToken, generoRouter);
+
 
 app.listen(port,'0.0.0.0', () => {
     console.log(`A API subiu na porta ${port}, endereço: http://localhost:${port}`);
