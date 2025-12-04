@@ -25,6 +25,7 @@ setupSwagger(app);
 
 app.use(cors({
   origin: [
+    "https://front-end-inventory-manager-quinta-noite-p4-8u6xgvaqn.vercel.app",
     "https://front-end-inventory-manager-qui-git-dc3554-lisboa-devs-projects.vercel.app",
     "https://front-end-inventory-manager-quinta.vercel.app",
     "http://localhost:3000"
