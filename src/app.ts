@@ -23,7 +23,7 @@ setupSwagger(app);
 
 // Permitir apenas o domínio do front-end hospedado no Vercel
 
-const cors = require('cors')
+
 app.use(cors())
 app.options('*', cors())
 
